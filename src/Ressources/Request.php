@@ -12,47 +12,46 @@ use GuzzleHttp\Client;
 class Request
 {
 
-	protected $request = '';
-	protected $requestMethod = '';
-	protected $options = '';
+  protected $request = '';
+  protected $requestMethod = '';
+  protected $options = '';
 
-	private $apiKey;
+  private $apiKey;
 
-	public function __construct($apiKey='')
-	{
+  public function __construct($apiKey='')
+  {
 
-		$this->apiKey = $apiKey;
+    $this->apiKey = $apiKey;
 
-		if(method_exists($this, 'initialize'))
-			$this->initialize();
+    if(method_exists($this, 'initialize'))
+      $this->initialize();
 
-		if($this->request == '')
-			throw new \Exception("Route is not defined");
-		if($this->requestMethod == '')
-			throw new \Exception("Request method is not defined");
-		return true;
-	}
+    if($this->request == '')
+      throw new \Exception("Route is not defined");
+    if($this->requestMethod == '')
+      throw new \Exception("Request method is not defined");
+    return true;
+  }
 
-	public function send(){
+  public function send(){
+    $client = new Client([
+      'base_uri' => 'http://api.adventaj.com'
+    ]);
+    $requestMethod = 'GET';
+    if($this->requestMethod == 'POST'){
+      $requestMethod = 'POST';
+    }
 
-		$client = new Client([
-			'base_uri' => 'http://api.adventaj.com'
-		]);
-		$requestMethod = 'GET';
-		if($this->requestMethod == 'POST'){
-			$requestMethod = 'POST';
-		}
-		$response = $client->request(
-			$requestMethod,
-			$this->request . '?apiKey=' . $this->apiKey,
-			$this->options
-		);
-		if($response->getStatusCode() != 200)
-			throw new \Exception('Error: '.$response->getReasonPhrase());
-		return true;
+    $response = $client->request(
+      $requestMethod,
+      $this->request . '?apiKey=' . $this->apiKey,
+      [($requestMethod == 'POST' ? 'form_params' : 'query') => $this->options]
+    );
 
-	}
-
-
+    if($response->getStatusCode() != 200) {
+      throw new \Exception('Error: '.$response->getReasonPhrase(), $response->getStatusCode());
+    }
+    return true;
+  }
 
 }
