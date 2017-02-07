@@ -14,36 +14,34 @@ class Unsubscribe
   private $tags = [];
   private $messageId = '';
 
-  public function __construct($email='', $tags=[], $messageId='') {
-    $this->email = $email;
-    $this->messageId = $messageId;
-    if (!is_array($tags)) {
-      $tags = [$tags];
-    }
-    $this->tags = $tags;
+  public function __construct() {
+		if(!isset($_Request['event']) || $_Request['event'] != 'unsubscribe')
+			throw new \Exception('Initialize object variable for event');
+  	if(isset($_Request['email']))
+    	$this->email = $_Request['email'];
+  	else
+			throw new \Exception('Initialize object variable for email');
+		if(isset($_Request['messageId']))
+			$this->messageId = $_Request['messageId'];
+		else
+			throw new \Exception('Initialize object variable for messageId');
+		if(isset($_Request['tags']) && is_array($_Request['tags']))
+      $this->tags = $_Request['tags'];
+    else
+    	$this->tags = [];
   }
 
   public function getEmail() {
     return $this->email;
   }
 
-  public function setEmail($email) {
-    $this->email = $email;
-  }
-
   public function getMessageId() {
     return $this->messageId;
-  }
-
-  public function setMessageId($messageId) {
-    $this->messageId = $messageId;
   }
 
   public function getTags() {
     return $this->tags;
   }
 
-  public function addTag($tag) {
-    $this->tags[] = $tag;
-  }
+
 }
